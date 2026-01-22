@@ -1,6 +1,6 @@
 # Snow Day Tracker
 
-A tool for tracking school closings and delays from CBS Boston's school closings website, along with precipitation data from the National Weather Service.
+A robust tool for tracking school closings and delays from CBS Boston's school closings website, along with precipitation data from the National Weather Service.
 
 ## Features
 
@@ -12,6 +12,10 @@ A tool for tracking school closings and delays from CBS Boston's school closings
   - Date and time of retrieval
 - Retrieves 24-hour precipitation data from weather.gov API
 - Stores all data in a CSV file for easy analysis
+- **NEW**: Command-line interface with configurable options
+- **NEW**: Automatic retry logic for network failures
+- **NEW**: Input validation and CSV injection protection
+- **NEW**: Comprehensive unit test suite
 
 ## Installation
 
@@ -26,6 +30,11 @@ cd snowday_tracker
 pip install -r requirements.txt
 ```
 
+Or use the Makefile:
+```bash
+make install
+```
+
 3. (Optional) Configure location for weather data:
 ```bash
 cp .env.example .env
@@ -34,7 +43,9 @@ cp .env.example .env
 
 ## Usage
 
-Run the scraper:
+### Basic Usage
+
+Run the scraper with default settings:
 ```bash
 python school_closings_scraper.py
 ```
@@ -44,10 +55,36 @@ Or use the provided runner script:
 ./run_scraper.sh
 ```
 
-The script will:
-1. Fetch 24-hour precipitation data for the Boston area
-2. Scrape school closing information from CBS Boston
-3. Log all data to `school_closings_log.csv`
+Or use Make:
+```bash
+make run
+```
+
+### Advanced Usage
+
+The scraper now supports command-line arguments for flexible configuration:
+
+```bash
+# Specify custom output file
+python school_closings_scraper.py --output data/closings.csv
+
+# Use custom coordinates
+python school_closings_scraper.py --lat 42.3601 --lon -71.0589
+
+# Dry run (test without writing)
+python school_closings_scraper.py --dry-run
+
+# Verbose logging
+python school_closings_scraper.py --verbose
+
+# Combine options
+python school_closings_scraper.py -o data/today.csv --verbose --dry-run
+```
+
+View all options:
+```bash
+python school_closings_scraper.py --help
+```
 
 ### Analyzing the Data
 
@@ -65,7 +102,22 @@ This will show:
 
 ### Testing
 
-To test the scraper with mock data:
+Run the comprehensive unit test suite:
+```bash
+make test
+```
+
+Or:
+```bash
+python -m pytest tests/ -v
+```
+
+Or use the test runner:
+```bash
+./run_tests.sh
+```
+
+Test with mock data (doesn't require network):
 ```bash
 python test_scraper.py
 ```
@@ -75,11 +127,41 @@ python test_scraper.py
 The CSV file contains the following columns:
 - `retrieval_date` - Date when the data was retrieved
 - `retrieval_time` - Time when the data was retrieved
-- `school_name` - Name of the school or district
+- `school_name` - Name of the school or district (sanitized for CSV injection)
 - `school_type` - Type of school (Elementary, Middle, High, District, etc.)
 - `status` - Closing/delay status (Closed, 2-Hour Delay, Early Release, etc.)
 - `precipitation_24h_inches` - Total precipitation in last 24 hours (inches)
 - `raw_text` - Raw text from the source (for reference)
+
+## Improvements in v1.1.0
+
+This version includes significant improvements based on QA feedback:
+
+### Reliability
+- ✅ **Automatic retry logic** - Network requests retry up to 3 times with exponential backoff
+- ✅ **Better error handling** - Specific exception types with informative messages
+- ✅ **Data validation** - Validates all scraped data before saving
+
+### Security
+- ✅ **CSV injection protection** - Sanitizes fields to prevent formula execution
+- ✅ **Input validation** - Validates and truncates all fields appropriately
+
+### Testing
+- ✅ **14 comprehensive unit tests** - Testing all core functionality
+- ✅ **Mocked external dependencies** - Tests run without network access
+- ✅ **Easy test running** - `make test` or `./run_tests.sh`
+
+### Usability
+- ✅ **Command-line interface** - Configure everything via CLI arguments
+- ✅ **Dry-run mode** - Test without writing files (`--dry-run`)
+- ✅ **Verbose logging** - Debug mode available (`--verbose`)
+- ✅ **Custom output paths** - Specify output location
+- ✅ **Makefile** - Common tasks: `make install`, `make test`, `make run`
+
+### Code Quality
+- ✅ **Better logging** - Clear status indicators (✓/✗/⚠)
+- ✅ **Exit codes** - Proper exit codes for automation
+- ✅ **Documentation** - Comprehensive docstrings and examples
 
 ## Scheduling
 
