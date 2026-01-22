@@ -7,10 +7,9 @@ Scrapes CBS Boston school closings website and logs closings/delays with precipi
 import requests
 from bs4 import BeautifulSoup
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
-import time
 import logging
 
 # Configure logging
@@ -71,14 +70,17 @@ class SchoolClosingsScraper:
                 observations_data = response.json()
                 
                 # Calculate total precipitation from last 24 hours
+                # Note: precipitationLastHour gives the precipitation for that specific hour
+                # We sum all hourly values within the 24-hour window
+                # This approach gives an approximation of total precipitation
                 total_precipitation = 0.0
-                current_time = datetime.now()
+                current_time = datetime.now(timezone.utc)
                 
                 for observation in observations_data.get('features', []):
                     obs_time_str = observation['properties'].get('timestamp')
                     if obs_time_str:
                         obs_time = datetime.fromisoformat(obs_time_str.replace('Z', '+00:00'))
-                        time_diff = (current_time - obs_time.replace(tzinfo=None)).total_seconds() / 3600
+                        time_diff = (current_time - obs_time).total_seconds() / 3600
                         
                         # Only include observations from last 24 hours
                         if time_diff <= 24:
