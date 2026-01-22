@@ -39,10 +39,36 @@ Run the scraper:
 python school_closings_scraper.py
 ```
 
+Or use the provided runner script:
+```bash
+./run_scraper.sh
+```
+
 The script will:
 1. Fetch 24-hour precipitation data for the Boston area
 2. Scrape school closing information from CBS Boston
 3. Log all data to `school_closings_log.csv`
+
+### Analyzing the Data
+
+Use the included analysis script to get insights from collected data:
+```bash
+python analyze_data.py
+```
+
+This will show:
+- Total number of closings/delays
+- Breakdown by status (closed, delayed, etc.)
+- Breakdown by school type
+- Precipitation statistics
+- Schools with most closings
+
+### Testing
+
+To test the scraper with mock data:
+```bash
+python test_scraper.py
+```
 
 ## Output Format
 
